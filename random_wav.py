@@ -50,9 +50,9 @@ class RandomWAVDataset(Dataset):
 
     def __getitem__(self, index):
         if self.determanistic:
-            uniform_pos = random.uniform(0, 1)
-        else:
             uniform_pos = index / self.size
+        else:
+            uniform_pos = random.uniform(0, 1)
         bin_pos = np.digitize(uniform_pos, self.boundaries[1:], right=False)
         f, length = self.files[bin_pos], self.file_lengths[bin_pos]
         offset = int(length * (uniform_pos - self.boundaries[bin_pos]) / (

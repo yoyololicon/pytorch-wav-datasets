@@ -1,1 +1,1 @@
-from .random_wav import RandomWavDataset
+from .random_wav import RandomWAVDataset
