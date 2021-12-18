@@ -20,7 +20,7 @@ class RandomWAVDataset(Dataset):
         self.segment = segment
         self.data_path = os.path.expanduser(data_dir)
         self.size = size
-        self.determanistic = deterministic
+        self.deterministic = deterministic
 
         self.waves = []
         self.sr = None
@@ -49,7 +49,7 @@ class RandomWAVDataset(Dataset):
         return self.size
 
     def __getitem__(self, index):
-        if self.determanistic:
+        if self.deterministic:
             uniform_pos = index / self.size
         else:
             uniform_pos = random.uniform(0, 1)
