@@ -5,6 +5,7 @@ import torch
 from torch.utils.data import Dataset
 from tqdm import tqdm
 import torchaudio
+from pathlib import Path
 
 
 class RandomWAVDataset(Dataset):
@@ -29,17 +30,15 @@ class RandomWAVDataset(Dataset):
         file_lengths = []
 
         print("Gathering training files ...")
-        for f in tqdm(sorted(os.listdir(self.data_path))):
-            if f.endswith('.wav'):
-                filename = os.path.join(self.data_path, f)
-                meta = torchaudio.info(filename)
-                self.files.append(filename)
-                file_lengths.append(max(0, meta.num_frames - segment) + 1)
+        for filename in tqdm(sorted(Path(self.data_path).glob("*/*.wav"))):
+            meta = torchaudio.info(filename)
+            self.files.append(filename)
+            file_lengths.append(max(0, meta.num_frames - segment) + 1)
 
-                if not self.sr:
-                    self.sr = meta.sample_rate
-                else:
-                    assert meta.sample_rate == self.sr
+            if not self.sr:
+                self.sr = meta.sample_rate
+            else:
+                assert meta.sample_rate == self.sr
 
         self.file_lengths = np.array(file_lengths)
         self.boundaries = np.cumsum(
