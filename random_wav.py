@@ -30,7 +30,7 @@ class RandomWAVDataset(Dataset):
         file_lengths = []
 
         print("Gathering training files ...")
-        for filename in tqdm(sorted(Path(self.data_path).glob("*/*.wav"))):
+        for filename in tqdm(sorted(Path(self.data_path).glob("**/*.wav"))):
             meta = torchaudio.info(filename)
             self.files.append(filename)
             file_lengths.append(max(0, meta.num_frames - segment) + 1)
