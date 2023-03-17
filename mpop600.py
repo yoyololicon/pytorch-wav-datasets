@@ -3,8 +3,6 @@ import numpy as np
 from torch.utils.data import Dataset
 from tqdm import tqdm
 import soundfile as sf
-from resampy import resample
-import pyworld as pw
 
 
 class MPop600Dataset(Dataset):
