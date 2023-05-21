@@ -13,11 +13,9 @@ class RandomWAVDataset(Dataset):
     Wave-file-only Dataset.
     """
 
-    def __init__(self,
-                 data_dir: str,
-                 size: int,
-                 segment: int,
-                 deterministic: bool = True):
+    def __init__(
+        self, data_dir: str, size: int, segment: int, deterministic: bool = True
+    ):
         self.segment = segment
         self.data_path = os.path.expanduser(data_dir)
         self.size = size
@@ -41,8 +39,9 @@ class RandomWAVDataset(Dataset):
                 assert meta.sample_rate == self.sr
 
         self.file_lengths = np.array(file_lengths)
-        self.boundaries = np.cumsum(
-            np.array([0] + file_lengths)) / self.file_lengths.sum()
+        self.boundaries = (
+            np.cumsum(np.array([0] + file_lengths)) / self.file_lengths.sum()
+        )
 
     def __len__(self):
         return self.size
@@ -54,12 +53,17 @@ class RandomWAVDataset(Dataset):
             uniform_pos = random.uniform(0, 1)
         bin_pos = np.digitize(uniform_pos, self.boundaries[1:], right=False)
         f, length = self.files[bin_pos], self.file_lengths[bin_pos]
-        offset = int(length * (uniform_pos - self.boundaries[bin_pos]) / (
-            self.boundaries[bin_pos+1] - self.boundaries[bin_pos]))
-        x = torchaudio.load(f, frame_offset=offset,
-                            num_frames=self.segment)[0].mean(0)
+        offset = int(
+            length
+            * (uniform_pos - self.boundaries[bin_pos])
+            / (self.boundaries[bin_pos + 1] - self.boundaries[bin_pos])
+        )
+        x = torchaudio.load(f, frame_offset=offset, num_frames=self.segment)[0].mean(0)
 
         # this should not happen but I just want to make sure
         if x.numel() < self.segment:
-            x = torch.cat([x, x.new_zeros(self.segment - x.numel())])
+            place_holder = torch.zeros(self.segment)
+            pos = random.randint(0, self.segment - x.numel())
+            place_holder[pos : pos + x.numel()] = x
+            x = place_holder
         return x
