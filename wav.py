@@ -52,10 +52,10 @@ class WAVDataset(Dataset):
         x = torchaudio.load(f, frame_offset=offset, num_frames=self.segment)[0]
         # this should not happen but I just want to make sure
         if x.shape[1] < self.segment:
-            x = torch.cat(
-                [x, x.new_zeros([x.shape[0], self.segment - x.shape[1]])], dim=1
-            )
-
+            tmp = x.new_zeros([x.shape[0], self.segment])
+            rand_offset = random.randint(0, self.segment - x.shape[1])
+            tmp[:, rand_offset : rand_offset + x.shape[1]] = x
+            x = tmp
         if self.reduce:
             x = x.mean(0)
 
