@@ -14,13 +14,19 @@ class WAVDataset(Dataset):
     """
 
     def __init__(
-        self, data_dir: str, segment: int, overlap: int = 0, reduce: bool = False
+        self,
+        data_dir: str,
+        segment: int,
+        overlap: int = 0,
+        keepdim: bool = False,
+        mono: bool = False,
     ):
         assert segment > overlap and overlap >= 0
         self.segment = segment
         self.data_path = os.path.expanduser(data_dir)
         self.hop_size = segment - overlap
-        self.reduce = reduce
+        self.keepdim = keepdim
+        self.mono = mono
 
         self.waves = []
         self.sr = None
@@ -56,7 +62,7 @@ class WAVDataset(Dataset):
             rand_offset = random.randint(0, self.segment - x.shape[1])
             tmp[:, rand_offset : rand_offset + x.shape[1]] = x
             x = tmp
-        if self.reduce:
-            x = x.mean(0)
 
-        return x
+        return (lambda x: x.squeeze(0) if not self.keepdim else x)(
+            (lambda x: x.mean(0, keepdim=True) if self.mono else x)(x)
+        )
